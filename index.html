@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <style>
+        body{
+            background-color: gray;
+        }
+    </style>
+    <div id="contanir"></div>
+    <div id="oneCard">+1</div>
+    <div id="historyCard"></div>
+    <script>
+        const socket =new WebSocket('ws://localhost:3000'); 
+        const contanir = document.getElementById('contanir');
+        const oneCard = document.getElementById('oneCard');
+        const historyCard = document.getElementById("historyCard");
+        let yourOrder = 0;
+        let lastcard = {
+            number:-1,
+            color:-1
+        }
+
+        socket.onopen = ()=> {}
+        socket.onmessage = (event) =>{
+            const data = JSON.parse(event.data);
+            if (data.type === 'order')
+            {
+                yourOrder = data.order;
+            }
+            if (data.type === 'cards')
+            {
+                data.cards.forEach(element => {
+                    const div1 = document.createElement('div');
+                    div1.textContent = element.n;
+                    div1.style.color = element.c;
+                    div1.classList.add('card');
+                    contanir.appendChild(div1);
+                    
+                });
+            }
+            if (data.type === 'lastcard')
+            {
+                lastcard.color =data.color;
+                lastcard.number = data.number;
+                const div = document.createElement("div");
+                div.textContent = lastcard.number;
+                div.style.color = lastcard.color;
+                div.classList.add('lastcard');
+                historyCard.appendChild(div);
+                console.log(lastcard.color)
+            }
+            if (data.type === 'start')
+            {   
+                oneCardFunction(true)
+                const card = contanir.querySelectorAll('div')
+                card.forEach(div => {
+                    const styel = window.getComputedStyle(div);
+                    if (div.textContent === lastcard.number || styel.color === lastcard.color ||lastcard.number === -1 ||div.textContent == '+4' ||div.textContent === 'select color')
+                    {
+                        div.style.border = "1px solid black";
+                        if (div.textContent === '+4'|| div.textContent ==='select color')
+                        {
+                            creatColor(div , 'play a card');
+                        }
+                        else {
+                            play(div , 'play a card')
+                        }
+                    }
+                })
+            }
+            if (data.type === 'ready or not')
+            {
+                cardPlus(false);
+            }
+            if (data.type === '+2')
+            {
+                cardPlus(true);
+            }
+        }
+        function clear() {
+          const card = contanir.querySelectorAll('div')
+                card.forEach(div => {
+                    div.onclick = null;
+                    div.style.border = 'none';
+                })
+            oneCard.onclick = null;
+            oneCard.style.border = 'none';
+        }
+        function creatColor (div , type){
+                div.style.border = '1px solid black';
+                div.onclick = () => {
+                let colors = ['rgb(0, 128, 0)' , 'rgb(0, 0, 255)' , 'rgb(255, 255, 0)' , 'rgb(255, 0, 0)'];
+                    colors.forEach(color => {
+                        const divc = document.createElement('div');
+                        divc.style.width = '50px';
+                        divc.style.height = '50px';
+                        divc.style.backgroundColor = color;
+                        divc.classList.add('color')
+                        div.appendChild(divc);
+                        divc.onclick = () => {
+                            socket.send(JSON.stringify({
+                            type:type,
+                            order: yourOrder,
+                            number: div.textContent,
+                            color:color
+                        }))
+                        const clearColorDiv = div.querySelectorAll('div');
+                        clearColorDiv.forEach(x => {
+                            x.style.display= 'none';
+                        })
+                        div.style.display = 'none';
+                        clear();
+                        }
+                    })
+                }
+        }
+        function oneCardFunction(type){
+             oneCard.style.border =  '1px solid black';
+                oneCard.onclick = () => {
+                    socket.send(JSON.stringify({
+                        type:'help',
+                        order:yourOrder,
+                        state:type
+                    }))
+                    clear();
+                }
+        }
+        function play(div , type){
+            div.style.border = '1px solid black';
+            const styel = window.getComputedStyle(div)
+            div.onclick = () => {
+                socket.send(JSON.stringify({
+                    type:type,
+                    order: yourOrder,
+                    number: div.textContent,
+                    color:styel.color
+                }))
+                div.style.display = 'none';
+                clear();
+            }
+        }
+        function cardPlus(x){
+            oneCardFunction(false);
+                const card = contanir.querySelectorAll("div");
+                card.forEach(div => {
+                     const styel = window.getComputedStyle(div);
+                    if (div.textContent === '+4')
+                    {
+                        creatColor(div , 'yes');
+                    }
+                    else if (div.textContent === '+2' && (styel.color === lastcard.color || x))
+                    {
+                        play(div , 'yes');
+                    }
+                })
+        }
+        /*
+        راح نكمل بعدين الاسكربت بعدين
+        حق الاري بس خلينا نحدد وش نكتب بالزبط
+        */
+    </script>
+</body>
+</html>

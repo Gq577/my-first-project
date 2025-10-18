@@ -1,0 +1,36 @@
+:root{
+    box-sizing: border-box;
+}
+body{
+    display: grid;
+    height: 100vh;
+    grid-template-rows: repeat(5 ,1fr);
+    margin: 0;
+    padding:0;
+    
+}
+#contanir{
+    grid-row: 5;
+    display: flex;
+    justify-content: center;
+    gap:10px;
+}
+
+.card , .lastcard {
+    width: 90px;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: larger;
+    background-color: white;
+    text-shadow: 0 0 3px black;
+}
+#historyCard{
+    grid-row: 3;
+    position: relative;
+}
+.lastcard{
+    position: absolute;
+    left:calc(50% - 45px);   
+}
