@@ -16,16 +16,17 @@
     <div id="oneCard">+1</div>
     <div id="historyCard"></div>
     <script>
-        const socket =new WebSocket('ws://localhost:3000'); 
-        const contanir = document.getElementById('contanir');
-        const oneCard = document.getElementById('oneCard');
-        const historyCard = document.getElementById("historyCard");
+        const arrOfCard = [];
+        const socket =new WebSocket('ws://localhost:3000');                                                                                                                                                                                                                    
+        const contanir = document.getDivOfCardById('contanir');
+        const oneCard = document.getDivOfCardById('oneCard');
+        const historyCard = document.getDivOfCardById("historyCard");
         let yourOrder = 0;
         let lastcard = {
             number:-1,
             color:-1
         }
-
+        let index = 0 ;
         socket.onopen = ()=> {}
         socket.onmessage = (event) =>{
             const data = JSON.parse(event.data);
@@ -35,12 +36,19 @@
             }
             if (data.type === 'cards')
             {
-                data.cards.forEach(element => {
-                    const div1 = document.createElement('div');
-                    div1.textContent = element.n;
-                    div1.style.color = element.c;
-                    div1.classList.add('card');
-                    contanir.appendChild(div1);
+                data.cards.forEach(sigelCard => {
+                    const newCardDiv = document.createElement('div');
+                    newCardDiv.textContent = sigelCard.n;
+                    newCardDiv.style.color = sigelCard.c;
+                    arrOfCard.push({
+                        number:sigelCard.n,
+                        color:sigelCard.c,
+                        DivOfCard: newCardDiv
+                    })
+                    newCardDiv.dataset.index = index;
+                    index ++; 
+                    newCardDiv.classList.add('card');
+                    contanir.appendChild(newCardDiv);
                     
                 });
             }
@@ -48,28 +56,24 @@
             {
                 lastcard.color =data.color;
                 lastcard.number = data.number;
-                const div = document.createElement("div");
-                div.textContent = lastcard.number;
-                div.style.color = lastcard.color;
-                div.classList.add('lastcard');
-                historyCard.appendChild(div);
-                console.log(lastcard.color)
+                const lastCardDiv = document.createElement("div");
+                lastCardDiv.textContent = lastcard.number;
+                lastCardDiv.style.color = lastcard.color;
+                lastCardDiv.classList.add('lastcard');
+                historyCard.appendChild(lastCardDiv);
             }
             if (data.type === 'start')
             {   
                 oneCardFunction(true)
-                const card = contanir.querySelectorAll('div')
-                card.forEach(div => {
-                    const styel = window.getComputedStyle(div);
-                    if (div.textContent === lastcard.number || styel.color === lastcard.color ||lastcard.number === -1 ||div.textContent == '+4' ||div.textContent === 'select color')
+                arrOfCard.forEach(elemenOFarray => {
+                    if (elemenOFarray.number === lastcard.number || elemenOFarray.color === lastcard.color ||lastcard.number === -1 ||elemenOFarray.color === 'black')
                     {
-                        div.style.border = "1px solid black";
-                        if (div.textContent === '+4'|| div.textContent ==='select color')
+                        if (elemenOFarray.color === 'black')
                         {
-                            creatColor(div , 'play a card');
+                            creatColor(elemenOFarray , 'play a card');
                         }
                         else {
-                            play(div , 'play a card')
+                            play(elemenOFarray , 'play a card')
                         }
                     }
                 })
@@ -84,36 +88,38 @@
             }
         }
         function clear() {
-          const card = contanir.querySelectorAll('div')
-                card.forEach(div => {
-                    div.onclick = null;
-                    div.style.border = 'none';
+                arrOfCard.forEach(div => {
+                    div.DivOfCard.onclick = null;
+                    div.DivOfCard.style.border = 'none';
                 })
             oneCard.onclick = null;
             oneCard.style.border = 'none';
         }
-        function creatColor (div , type){
-                div.style.border = '1px solid black';
-                div.onclick = () => {
+        function creatColor (opjectElement , type){
+                const divOfcolorCard  = opjectElement.DivOfCard;
+                divOfcolorCard.style.border = '1px solid black';
+                divOfcolorCard.onclick = () => {
                 let colors = ['rgb(0, 128, 0)' , 'rgb(0, 0, 255)' , 'rgb(255, 255, 0)' , 'rgb(255, 0, 0)'];
                     colors.forEach(color => {
-                        const divc = document.createElement('div');
-                        divc.style.width = '50px';
-                        divc.style.height = '50px';
-                        divc.style.backgroundColor = color;
-                        divc.classList.add('color')
-                        div.appendChild(divc);
-                        divc.onclick = () => {
+                        const new4ColorDiv = document.createElement('div');
+                        new4ColorDiv.style.width = '50px';
+                        new4ColorDiv.style.height = '50px';
+                        new4ColorDiv.style.backgroundColor = color;
+                        new4ColorDiv.classList.add('color')
+                        divOfcolorCard.appendChild(new4ColorDiv);
+                        new4ColorDiv.onclick = () => {
                             socket.send(JSON.stringify({
                             type:type,
                             order: yourOrder,
-                            number: div.textContent,
+                            number: opjectElement.number,
                             color:color
                         }))
-                        const clearColorDiv = div.querySelectorAll('div');
+                        const clearColorDiv = divOfcolorCard.querySelectorAll('div');
                         clearColorDiv.forEach(x => {
                             x.style.display= 'none';
                         })
+                        arrOfCard.splice(divOfcolorCard.dataset.index , 1);
+                        index--;
                         div.style.display = 'none';
                         clear();
                         }
@@ -131,39 +137,56 @@
                     clear();
                 }
         }
-        function play(div , type){
-            div.style.border = '1px solid black';
-            const styel = window.getComputedStyle(div)
-            div.onclick = () => {
+        function play(opjectElement , type){
+            let singelCard = opjectElement.DivOfCard
+            singelCard.style.border = '1px solid black';
+            singelCard.onclick = () => {
                 socket.send(JSON.stringify({
                     type:type,
                     order: yourOrder,
-                    number: div.textContent,
-                    color:styel.color
+                    number: opjectElement.number,
+                    color:opjectElement.color
                 }))
-                div.style.display = 'none';
+                singelCard.style.display = 'none';
+                arrOfCard.splice(singelCard.dataset.index , 1)
+                index --;
                 clear();
             }
         }
         function cardPlus(x){
             oneCardFunction(false);
-                const card = contanir.querySelectorAll("div");
-                card.forEach(div => {
-                     const styel = window.getComputedStyle(div);
-                    if (div.textContent === '+4')
+                arrOfCard.forEach(opjectElement => {
+                    if (opjectElement.number === '+4')
                     {
-                        creatColor(div , 'yes');
+                        creatColor(opjectElement , 'yes');
                     }
-                    else if (div.textContent === '+2' && (styel.color === lastcard.color || x))
+                    else if (opjectElement.number === '+2' && (opjectElement.color === lastcard.color || x))
                     {
-                        play(div , 'yes');
+                        play(opjectElement , 'yes');
                     }
                 })
         }
         /*
-        راح نكمل بعدين الاسكربت بعدين
-        حق الاري بس خلينا نحدد وش نكتب بالزبط
+        خطوات راح نسويها
+        نسوي الاري تمهيدا للنظام رمي الكروت
+        نكمل المشروع بين اثنين تمهيدا للتركيز على الداتا بيس
+        ثم نخطط وش نسوي
         */
+       /*
+        الطريقة 
+        اول شي 
+        اسوي اريي اربط فيها اللون والرقم والدف ذاته ايوا تقدر
+        ثم 
+        اضيف لكل دف اندكس خاص فيه
+        ثم 
+        اذا جا دوري 
+        اقارن على طول معا الاري بدون دف
+        العنصر الي يحقق الشروط 
+        امسك الدف ذاته من الاري
+        واحدد له البوردر والحدث
+        ثم ارسله 
+        ثم احذف العنصر كامل
+       */
     </script>
 </body>
 </html>
