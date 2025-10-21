@@ -18,9 +18,9 @@
     <script>
         const arrOfCard = [];
         const socket =new WebSocket('ws://localhost:3000');                                                                                                                                                                                                                    
-        const contanir = document.getDivOfCardById('contanir');
-        const oneCard = document.getDivOfCardById('oneCard');
-        const historyCard = document.getDivOfCardById("historyCard");
+        const contanir = document.getElementById('contanir');
+        const oneCard = document.getElementById('oneCard');
+        const historyCard = document.getElementById("historyCard");
         let yourOrder = 0;
         let lastcard = {
             number:-1,
@@ -68,6 +68,7 @@
                 arrOfCard.forEach(elemenOFarray => {
                     if (elemenOFarray.number === lastcard.number || elemenOFarray.color === lastcard.color ||lastcard.number === -1 ||elemenOFarray.color === 'black')
                     {
+                        console.log(elemenOFarray.number + ' === '+lastcard.number + " || " + elemenOFarray.color + " === " + lastcard.color )
                         if (elemenOFarray.color === 'black')
                         {
                             creatColor(elemenOFarray , 'play a card');
@@ -99,7 +100,8 @@
                 const divOfcolorCard  = opjectElement.DivOfCard;
                 divOfcolorCard.style.border = '1px solid black';
                 divOfcolorCard.onclick = () => {
-                let colors = ['rgb(0, 128, 0)' , 'rgb(0, 0, 255)' , 'rgb(255, 255, 0)' , 'rgb(255, 0, 0)'];
+                    clear();
+                let colors = ['red' , 'yellow' , 'green' , 'blue'];
                     colors.forEach(color => {
                         const new4ColorDiv = document.createElement('div');
                         new4ColorDiv.style.width = '50px';
@@ -119,9 +121,9 @@
                             x.style.display= 'none';
                         })
                         arrOfCard.splice(divOfcolorCard.dataset.index , 1);
-                        index--;
-                        div.style.display = 'none';
-                        clear();
+                        restIndex();
+                        divOfcolorCard.style.display = 'none';
+                        
                         }
                     })
                 }
@@ -147,9 +149,10 @@
                     number: opjectElement.number,
                     color:opjectElement.color
                 }))
+                console.log(opjectElement.color)
                 singelCard.style.display = 'none';
                 arrOfCard.splice(singelCard.dataset.index , 1)
-                index --;
+                restIndex();
                 clear();
             }
         }
@@ -166,6 +169,13 @@
                     }
                 })
         }
+        function restIndex(){
+            index = 0 ;
+            arrOfCard.forEach(cardOpj => {
+                cardOpj.DivOfCard.dataset.index = index;
+                index++;
+            })
+        }
         /*
         خطوات راح نسويها
         نسوي الاري تمهيدا للنظام رمي الكروت
@@ -173,19 +183,9 @@
         ثم نخطط وش نسوي
         */
        /*
-        الطريقة 
-        اول شي 
-        اسوي اريي اربط فيها اللون والرقم والدف ذاته ايوا تقدر
-        ثم 
-        اضيف لكل دف اندكس خاص فيه
-        ثم 
-        اذا جا دوري 
-        اقارن على طول معا الاري بدون دف
-        العنصر الي يحقق الشروط 
-        امسك الدف ذاته من الاري
-        واحدد له البوردر والحدث
-        ثم ارسله 
-        ثم احذف العنصر كامل
+        المشاكل
+        اول مشكلةهي مشكلة انه بعد ما تحط زايد اربعة ما تقدر تكمل لعب طبيعي
+        ثنين زايد اثنين ما يظهر له اللون 
        */
     </script>
 </body>

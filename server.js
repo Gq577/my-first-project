@@ -145,7 +145,7 @@ ws.on('connection' , (socket) => {
                 cardPlus.number = Number(x[1]);
                 sendTOall({
                     type:'lastcard',
-                    color:-10,
+                    color:data.color,
                     number:data.number,
                     playerNumber: data.order
                 })
