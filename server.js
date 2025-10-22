@@ -137,7 +137,7 @@ ws.on('connection' , (socket) => {
                 let x = data.number.split('');
                 cardPlus.number = Number(x[1]);
                 sendTOall(cardInfo)
-                userSend(data.order +1 , {type:"ready or not"});
+                userSend(data.order +1 , {type:"ready-or-not"});
             }
             else if (data.number === '+2')
             {
@@ -181,7 +181,7 @@ ws.on('connection' , (socket) => {
             let x = data.number.split('');
             cardPlus.number += Number(x[1]);
             sendTOall(cardInfo)
-            userSend(data.order + 1, {type:'ready or not'})
+            userSend(data.order + 1, {type:'ready-or-not'})
         }
     })
 })

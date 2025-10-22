@@ -21,22 +21,20 @@
         const contanir = document.getElementById('contanir');
         const oneCard = document.getElementById('oneCard');
         const historyCard = document.getElementById("historyCard");
+        const Fragment = document.createDocumentFragment();
         let yourOrder = 0;
         let lastcard = {
             number:-1,
             color:-1
         }
         let index = 0 ;
-        socket.onopen = ()=> {}
-        socket.onmessage = (event) =>{
-            const data = JSON.parse(event.data);
-            if (data.type === 'order')
-            {
-                yourOrder = data.order;
-            }
-            if (data.type === 'cards')
-            {
-                data.cards.forEach(sigelCard => {
+        const Allfunction = {
+            order:(order) => {
+                yourOrder = order;
+            },
+            cards:(x1 , cards , x3 , x4) => {
+                console.time('first');
+                cards.forEach(sigelCard => {
                     const newCardDiv = document.createElement('div');
                     newCardDiv.textContent = sigelCard.n;
                     newCardDiv.style.color = sigelCard.c;
@@ -48,59 +46,67 @@
                     newCardDiv.dataset.index = index;
                     index ++; 
                     newCardDiv.classList.add('card');
-                    contanir.appendChild(newCardDiv);
-                    
+                    Fragment.appendChild(newCardDiv);
                 });
-            }
-            if (data.type === 'lastcard')
-            {
-                lastcard.color =data.color;
-                lastcard.number = data.number;
+                contanir.appendChild(Fragment);
+                console.timeEnd('first');
+            },
+            lastcard:function test1(x1 , x2 , Ccolor , Nnumber){
+                lastcard.color =Ccolor;
+                lastcard.number = Nnumber;
                 const lastCardDiv = document.createElement("div");
                 lastCardDiv.textContent = lastcard.number;
                 lastCardDiv.style.color = lastcard.color;
                 lastCardDiv.classList.add('lastcard');
                 historyCard.appendChild(lastCardDiv);
-            }
-            if (data.type === 'start')
-            {   
+            },
+            start:function test2(){
                 oneCardFunction(true)
-                arrOfCard.forEach(elemenOFarray => {
-                    if (elemenOFarray.number === lastcard.number || elemenOFarray.color === lastcard.color ||lastcard.number === -1 ||elemenOFarray.color === 'black')
-                    {
-                        console.log(elemenOFarray.number + ' === '+lastcard.number + " || " + elemenOFarray.color + " === " + lastcard.color )
-                        if (elemenOFarray.color === 'black')
+                    arrOfCard.forEach(elemenOFarray => {
+                        if (checkCard(elemenOFarray))
                         {
-                            creatColor(elemenOFarray , 'play a card');
+                            if (elemenOFarray.color === 'black')
+                            {
+                                creatColor(elemenOFarray , 'play a card');
+                            }
+                            else {
+                                play(elemenOFarray , 'play a card')
+                            }
                         }
-                        else {
-                            play(elemenOFarray , 'play a card')
-                        }
-                    }
-                })
-            }
-            if (data.type === 'ready or not')
-            {
+                    })
+            },
+            "ready-or-not":()=> {
                 cardPlus(false);
-            }
-            if (data.type === '+2')
-            {
+            },
+            "+2": () => {
                 cardPlus(true);
             }
+            
+            
+
+        };
+        socket.onopen = ()=> {}
+        socket.onmessage = (event) =>{
+        
+            const data = JSON.parse(event.data);
+            let infoNameFunction = Allfunction[data.type];
+            if (infoNameFunction) infoNameFunction(data.order , data.cards , data.color , data.number);
+
+
         }
         function clear() {
                 arrOfCard.forEach(div => {
                     div.DivOfCard.onclick = null;
-                    div.DivOfCard.style.border = 'none';
+                    clearElement(div.DivOfCard)
                 })
             oneCard.onclick = null;
-            oneCard.style.border = 'none';
+            clearElement(oneCard);
         }
         function creatColor (opjectElement , type){
                 const divOfcolorCard  = opjectElement.DivOfCard;
                 divOfcolorCard.style.border = '1px solid black';
                 divOfcolorCard.onclick = () => {
-                    clear();
+                    
                 let colors = ['red' , 'yellow' , 'green' , 'blue'];
                     colors.forEach(color => {
                         const new4ColorDiv = document.createElement('div');
@@ -118,15 +124,22 @@
                         }))
                         const clearColorDiv = divOfcolorCard.querySelectorAll('div');
                         clearColorDiv.forEach(x => {
-                            x.style.display= 'none';
+                            x.style.display = 'none';
                         })
                         arrOfCard.splice(divOfcolorCard.dataset.index , 1);
                         restIndex();
+                        clear();
                         divOfcolorCard.style.display = 'none';
                         
                         }
                     })
                 }
+        }
+        function checkCard(elemenOFarray){
+            return (elemenOFarray.number === lastcard.number || elemenOFarray.color === lastcard.color ||lastcard.number === -1 ||elemenOFarray.color === 'black')
+        }
+        function clearElement(element){
+            element.style.border = 'none';
         }
         function oneCardFunction(type){
              oneCard.style.border =  '1px solid black';
@@ -176,17 +189,6 @@
                 index++;
             })
         }
-        /*
-        خطوات راح نسويها
-        نسوي الاري تمهيدا للنظام رمي الكروت
-        نكمل المشروع بين اثنين تمهيدا للتركيز على الداتا بيس
-        ثم نخطط وش نسوي
-        */
-       /*
-        المشاكل
-        اول مشكلةهي مشكلة انه بعد ما تحط زايد اربعة ما تقدر تكمل لعب طبيعي
-        ثنين زايد اثنين ما يظهر له اللون 
-       */
     </script>
 </body>
 </html>
