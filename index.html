@@ -1,194 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>UNO for Two</title>
 </head>
 <body>
-    <style>
-        body{
-            background-color: gray;
-        }
-    </style>
-    <div id="contanir"></div>
-    <div id="oneCard">+1</div>
-    <div id="historyCard"></div>
+    <div id="container"></div>
+    <div id="plus">+1</div>
+    <div class="lastCenter">
+        <div id="last"></div>
+    </div>
     <script>
-        const arrOfCard = [];
-        const socket =new WebSocket('ws://localhost:3000');                                                                                                                                                                                                                    
-        const contanir = document.getElementById('contanir');
-        const oneCard = document.getElementById('oneCard');
-        const historyCard = document.getElementById("historyCard");
-        const Fragment = document.createDocumentFragment();
-        let yourOrder = 0;
-        let lastcard = {
-            number:-1,
-            color:-1
-        }
-        let index = 0 ;
-        const Allfunction = {
-            order:(order) => {
-                yourOrder = order;
-            },
-            cards:(x1 , cards , x3 , x4) => {
-                console.time('first');
-                cards.forEach(sigelCard => {
-                    const newCardDiv = document.createElement('div');
-                    newCardDiv.textContent = sigelCard.n;
-                    newCardDiv.style.color = sigelCard.c;
-                    arrOfCard.push({
-                        number:sigelCard.n,
-                        color:sigelCard.c,
-                        DivOfCard: newCardDiv
-                    })
-                    newCardDiv.dataset.index = index;
-                    index ++; 
-                    newCardDiv.classList.add('card');
-                    Fragment.appendChild(newCardDiv);
-                });
-                contanir.appendChild(Fragment);
-                console.timeEnd('first');
-            },
-            lastcard:function test1(x1 , x2 , Ccolor , Nnumber){
-                lastcard.color =Ccolor;
-                lastcard.number = Nnumber;
-                const lastCardDiv = document.createElement("div");
-                lastCardDiv.textContent = lastcard.number;
-                lastCardDiv.style.color = lastcard.color;
-                lastCardDiv.classList.add('lastcard');
-                historyCard.appendChild(lastCardDiv);
-            },
-            start:function test2(){
-                oneCardFunction(true)
-                    arrOfCard.forEach(elemenOFarray => {
-                        if (checkCard(elemenOFarray))
-                        {
-                            if (elemenOFarray.color === 'black')
-                            {
-                                creatColor(elemenOFarray , 'play a card');
-                            }
-                            else {
-                                play(elemenOFarray , 'play a card')
-                            }
-                        }
-                    })
-            },
-            "ready-or-not":()=> {
-                cardPlus(false);
-            },
-            "+2": () => {
-                cardPlus(true);
-            }
-            
-            
-
-        };
-        socket.onopen = ()=> {}
-        socket.onmessage = (event) =>{
-        
-            const data = JSON.parse(event.data);
-            let infoNameFunction = Allfunction[data.type];
-            if (infoNameFunction) infoNameFunction(data.order , data.cards , data.color , data.number);
-
-
-        }
-        function clear() {
-                arrOfCard.forEach(div => {
-                    div.DivOfCard.onclick = null;
-                    clearElement(div.DivOfCard)
-                })
-            oneCard.onclick = null;
-            clearElement(oneCard);
-        }
-        function creatColor (opjectElement , type){
-                const divOfcolorCard  = opjectElement.DivOfCard;
-                divOfcolorCard.style.border = '1px solid black';
-                divOfcolorCard.onclick = () => {
-                    
-                let colors = ['red' , 'yellow' , 'green' , 'blue'];
-                    colors.forEach(color => {
-                        const new4ColorDiv = document.createElement('div');
-                        new4ColorDiv.style.width = '50px';
-                        new4ColorDiv.style.height = '50px';
-                        new4ColorDiv.style.backgroundColor = color;
-                        new4ColorDiv.classList.add('color')
-                        divOfcolorCard.appendChild(new4ColorDiv);
-                        new4ColorDiv.onclick = () => {
-                            socket.send(JSON.stringify({
-                            type:type,
-                            order: yourOrder,
-                            number: opjectElement.number,
-                            color:color
-                        }))
-                        const clearColorDiv = divOfcolorCard.querySelectorAll('div');
-                        clearColorDiv.forEach(x => {
-                            x.style.display = 'none';
-                        })
-                        arrOfCard.splice(divOfcolorCard.dataset.index , 1);
-                        restIndex();
-                        clear();
-                        divOfcolorCard.style.display = 'none';
-                        
-                        }
-                    })
-                }
-        }
-        function checkCard(elemenOFarray){
-            return (elemenOFarray.number === lastcard.number || elemenOFarray.color === lastcard.color ||lastcard.number === -1 ||elemenOFarray.color === 'black')
-        }
-        function clearElement(element){
-            element.style.border = 'none';
-        }
-        function oneCardFunction(type){
-             oneCard.style.border =  '1px solid black';
-                oneCard.onclick = () => {
-                    socket.send(JSON.stringify({
-                        type:'help',
-                        order:yourOrder,
-                        state:type
-                    }))
-                    clear();
-                }
-        }
-        function play(opjectElement , type){
-            let singelCard = opjectElement.DivOfCard
-            singelCard.style.border = '1px solid black';
-            singelCard.onclick = () => {
-                socket.send(JSON.stringify({
-                    type:type,
-                    order: yourOrder,
-                    number: opjectElement.number,
-                    color:opjectElement.color
-                }))
-                console.log(opjectElement.color)
-                singelCard.style.display = 'none';
-                arrOfCard.splice(singelCard.dataset.index , 1)
-                restIndex();
-                clear();
-            }
-        }
-        function cardPlus(x){
-            oneCardFunction(false);
-                arrOfCard.forEach(opjectElement => {
-                    if (opjectElement.number === '+4')
-                    {
-                        creatColor(opjectElement , 'yes');
-                    }
-                    else if (opjectElement.number === '+2' && (opjectElement.color === lastcard.color || x))
-                    {
-                        play(opjectElement , 'yes');
-                    }
-                })
-        }
-        function restIndex(){
-            index = 0 ;
-            arrOfCard.forEach(cardOpj => {
-                cardOpj.DivOfCard.dataset.index = index;
-                index++;
+        const lastDiv = document.getElementById('last');
+         const socket =new WebSocket('ws://localhost:3000');
+        const container = document.getElementById('container')
+        const plus = document.getElementById('plus')
+         let myCard = [];
+         let order = -1;
+         function clearAll(op){
+            if (op === 1 ) ;
+            else {op.div.style.display = 'none';
+            myCard.splice(myCard.indexOf(op) , 1);}
+            plus.style.border = 'none';
+            plus.onclick = null;
+            myCard.forEach(element => {
+                element.div.style.border = 'none';
+                element.div.onclick = null;
             })
-        }
+         }
+         function playAcard(op) {
+            op.div.onclick = () => {
+                socket.send(JSON.stringify({
+                    type:'play',
+                    indexOfplayer:order,
+                    indexOfCard:myCard.indexOf(op),
+                    number:op.number,
+                    color:op.color,
+                }))
+                console.log('hi')
+                clearAll(op);
+                
+            }
+         }
+         function helpCard(){
+            plus.style.border = '1px solid black',
+            plus.onclick = () => {
+                socket.send(JSON.stringify({
+                    type:'help',
+                    typeOfHelp: 'normal',
+                    indexOfplayer:order
+                }))
+                clearAll(1)
+            }
+         }
+         function blackCard(cardOpj){
+            const blackCard = cardOpj.div;
+            blackCard.onclick = () => {
+                blackCard.onclick = null;
+                const colors = ['red','yellow', 'blue','green'];
+                colors.forEach(color => {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.style.backgroundColor = color;
+                    colorDiv.style.width = '50px';
+                    colorDiv.style.height = '50px';
+                    colorDiv.onclick = ()=> {
+                    socket.send(JSON.stringify({
+                    type:'play',
+                    indexOfplayer:order,
+                    indexOfCard:myCard.indexOf(cardOpj),
+                    number:cardOpj.number,
+                    color:color,
+
+                }))
+                clearAll(cardOpj);
+                    }
+                    blackCard.appendChild(colorDiv)
+                })
+            }
+         }
+         function creatDiv (father , text , Color , background)
+         {
+            const newDiv = document.createElement('div');
+            newDiv.textContent = text;
+            newDiv.style.color = Color;
+            newDiv.style.backgroundColor = background;
+            father.appendChild(newDiv);
+            return newDiv;
+         }
+         socket.onopen = () => {}
+         socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'order')order = data.order;
+            if (data.type === 'playNow')
+            {
+                helpCard();
+                console.log(data.index)
+                data.index.forEach(index => {
+                    const PlayDiv = myCard[index];
+                    PlayDiv.div.style.border = '1px solid black';
+                    if (PlayDiv.color === 'black') blackCard(PlayDiv);
+                    else playAcard(PlayDiv);
+                })
+            }
+            if (data.type === 'cards')
+            {
+                data.cards.forEach(card => {
+                myCard.push({div:creatDiv(container , card.n , card.c), color:card.c , number:card.n});
+                })
+            }
+            if (data.type === 'lastcard')
+            {
+                lastDiv.textContent = data.card.number;
+                lastDiv.style.color = data.card.color;
+                lastDiv.style.backgroundColor = 'gray';
+            }
+            if (data.type === "winner")
+            {
+                alert('you are the winner')
+            }
+            if (data.type === 'loser')
+            {
+                alert('you are the loser fuck you')
+            }
+         }
     </script>
 </body>
 </html>
