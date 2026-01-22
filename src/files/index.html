@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="pageRoom.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            position: relative;
+            height: 100vh;
+        }
+        #loginPage{
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(45deg , blue ,red);
+            
+        }
+        .loginBox {
+            width: 400px;
+            padding:20px;
+            box-shadow: 0 0 3px black;
+            background-color: blueviolet;
+        }
+        .inputs ,.msgAndButton{
+            width: 100%;
+            height: 50%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+        #user , #password {
+            display: block;
+            margin: 20px;
+            width: 70%;
+            height: 30px;
+        }
+        #password {
+            margin-bottom: 1px;
+        }
+        #msg {
+            height: 20px;
+            min-width: 10px;
+            color: red;
+        }
+
+        .body , .roomchantbox{
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sendMsg {
+            display: flex;
+            gap:5px;
+            padding: 5px;
+            width: 100%;
+        }
+        .sendbord , .userBox{
+            display: flex;
+            padding:10px;
+            gap:10px;
+            background-color: aliceblue;
+        }
+        #MSG , #messageINput {
+            flex:1;
+        }
+        #msgboard , #messageBox{
+            flex:1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 10px;
+        }
+        #msgboard div {
+            transition: all ease 0.5s;
+        }
+        #lobby {
+            display: none;
+        }
+        #createRoomBox {
+            position: absolute;
+            left:50%;
+            top:50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            padding: 10px;
+            gap:10px;
+            flex-direction: column;
+            border:1px solid black;
+            background-color: white;
+        }
+
+        /**********************************/
+
+        #x1 ,#x2 , .u1 , .u2 , .u3 , .u4 {
+      position: absolute;
+      width: 20px;
+      height: 35px;
+      background-color: #55aa55;
+      border-radius: 10px;
+      transform: matrix(1, 0, -0.3, 1, 0, 0);
+      border: 3px solid white;
+      outline: 1px solid black;
+    }
+    /* #x {
+      width: 105px;
+      height: 105px;
+    } */
+    #x1  {
+      left: 12px;
+      top:  35px;
+    }
+    #x2{
+      left: 30px;
+      top:  28px;
+    }
+        
+
+
+
+    </style>
+</head>
+<body>
+    <div id="createRoomBox">
+        <input type="text" name="" id="roomName" placeholder="room name">
+        <input type="text" name="" id="roomPassword" placeholder="password">
+        <select name="" id="select">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <input type="button" value="" id="createRoomButton">
+        <input type="button" id ='closeBox'>
+    </div>
+
+
+    <div id="loginPage">
+        <div class="loginBox">
+            <div class="inputs">
+                <input type="text" name="" id="LoginUser" placeholder="username">
+                <input type="password" , id="LoginPassword" placeholder="password">
+            </div>
+            <div class="msgAndButton">
+                <div id="loginMessage"></div>
+                <button type="submit" id="loginButton">submit</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="lobby">
+        <div class="body">
+            <div id="msgboard"></div>
+            <div class="sendbord">
+                <div id="createAgame">Create a Game</div>
+                <input type="text" name="" id="chatMessage">
+                <div id="sendMsg">send</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="roomPage">
+        <div id="container"></div>
+        <div id="plus">+1</div>
+        <div class="lastCenter">
+            <div id="last">
+                <div id="text"></div>
+                <div id="before"></div>
+                <div id="after"></div>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const lobby = document.getElementById("lobby");
+        const roomPage = document.getElementById("roomPage");
+
+
+        let nameOfroom = '';
+/*****************************************************/
+
+
+        
+/***********************************************************************/
+        socket.on('lobby' , ()=> {
+            loginPage.style.display = 'none';
+            lobby.style.display = 'block';
+        })
+
+        socket.on("you join the room" , event => {
+            nameOfroom = event;
+            lobby.style.display = 'none';
+            roomPage.style.display = 'grid';
+        })
+        socket.on('to privet server' , (msg,user) => {
+            const msgDiv = document.createElement("div");
+            msgDiv.textContent = `${user} : ${msg}`;
+            messageBox.appendChild(msgDiv);
+        })
+
+        /********************************************************/
+
+    </script>
+    <script src="page1login.js"></script>
+    <Script src="page2chat.js"></Script>
+    <script src="page3play.js"></script>
+    <script src="maintain.js"></script>
+</body>
+</html>
