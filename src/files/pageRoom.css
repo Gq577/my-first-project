@@ -1,0 +1,100 @@
+        #roomPage {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: none;
+            grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+            position: relative;
+        }
+        #container {
+            grid-row: 5;
+            display: flex;
+            justify-content: center;
+            gap: 3px;
+        }
+        #bodyCard {
+            max-width: 70px;
+            height: 110px;
+            flex: 1;
+            display: grid;
+            place-items: center;
+            position: relative;
+            border-radius: 10px;
+            border:5px solid white;
+            outline:1px solid black;
+            opacity: 0.5;
+        }
+        .lastCenter {
+            grid-row: 3;
+            display: flex;
+            justify-content: center;
+        }
+        #plus {
+            width: 50px;
+            height: 50px;
+            border-style: groove;
+            border-color: brown;
+            border-width: 3px;
+            position: absolute;
+            left: 100px;
+            bottom: 100px;
+        }
+        #beforeCardText {
+            position: absolute;
+            right: 2px;
+            bottom: 2px;
+            font-family: sans-serif;
+            color: white;
+        }
+        #afterCardText {
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            font-family: sans-serif;
+            color: white;
+        }
+        #cardText ,#x{
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: white;
+            display: grid;
+            place-items: center;
+            font-weight: 1000;
+            font-family: sans-serif;
+            font-size: 30px;
+        }
+
+        #last{
+            width: 70px;
+            height: 110px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+        #text{
+            width: 70px;
+            height: 70px;
+            background-color: white;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 1000;
+            font-family: sans-serif;
+            font-size: 30px;
+        }
+        #before , #after {
+            position: absolute;
+            color: white;
+            font-family: sans-serif;
+        }
+        #before {
+            left: 3px;
+            top: 3px;
+        }
+        #after{
+            right: 3px;
+            bottom: 3px;
+            transform: rotate(180deg);
+        }
